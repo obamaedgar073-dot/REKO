@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>REKO — Professional Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #F0D080;
+  --dark: #0A0A0F;
+  --dark2: #12121A;
+  --dark3: #1A1A28;
+  --accent: #3A7BD5;
+  --accent2: #00D2FF;
+  --success: #00E676;
+  --error: #FF5252;
+  --text: #E8E8F0;
+  --text2: #9090A8;
+  --border: rgba(201,168,76,0.25);
+  --glass: rgba(255,255,255,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100vh;overflow-x:hidden;}
+body{background:var(--dark);color:var(--text);font-family:'Montserrat',sans-serif;}
+
+/* VIDEO BG */
+.video-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;}
+.video-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,0.92) 0%,rgba(10,10,15,0.75) 50%,rgba(10,10,15,0.92) 100%);z-index:1;}
+.video-bg video{width:100%;height:100%;object-fit:cover;opacity:0.5;}
+.video-fallback{width:100%;height:100%;background:linear-gradient(135deg,#0A0A0F 0%,#1a1a3e 40%,#0d2040 70%,#0A0A0F 100%);animation:bgShift 8s ease-in-out infinite alternate;}
+@keyframes bgShift{0%{filter:hue-rotate(0deg);}100%{filter:hue-rotate(30deg);}}
+
+/* NOISE OVERLAY */
+.noise{position:fixed;inset:0;z-index:1;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;}
+
+/* APP SHELL */
+#app{position:relative;z-index:2;min-height:100vh;}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border);background:rgba(10,10,15,0.6);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:4px;background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo span{color:var(--accent2);-webkit-text-fill-color:var(--accent2);}
+.nav-badge{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--dark);padding:4px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:2px;}
+
+/* PAGES */
+.page{display:none;min-height:100vh;animation:fadeIn 0.5s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== LANDING PAGE ===== */
+#landing-page{min-height:100vh;display:flex;flex-direction:column;}
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 40px;position:relative;}
+.hero-tag{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:6px 20px;border-radius:30px;font-size:0.75rem;letter-spacing:3px;margin-bottom:30px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.4);}50%{box-shadow:0 0 0 10px rgba(201,168,76,0);}}
+.hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(3.5rem,10vw,8rem);line-height:0.95;letter-spacing:2px;margin-bottom:20px;}
+.hero h1 .line1{display:block;color:var(--text);}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--gold),var(--gold-light),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--text2);max-width:600px;line-height:1.8;margin-bottom:20px;font-weight:300;}
+.hero-desc{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:30px;max-width:700px;margin:0 auto 40px;backdrop-filter:blur(10px);}
+.hero-desc h3{color:var(--gold);font-size:1rem;letter-spacing:2px;margin-bottom:15px;font-weight:700;}
+.hero-desc p{color:var(--text2);line-height:1.9;font-size:0.95rem;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto 50px;width:100%;}
+.feat-card{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:left;backdrop-filter:blur(10px);transition:all 0.3s;}
+.feat-card:hover{border-color:var(--gold);transform:translateY(-4px);}
+.feat-icon{font-size:1.8rem;margin-bottom:10px;}
+.feat-card h4{color:var(--gold);font-size:0.8rem;letter-spacing:2px;margin-bottom:6px;}
+.feat-card p{color:var(--text2);font-size:0.8rem;line-height:1.6;}
+.cta-group{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--dark);padding:16px 40px;border-radius:50px;font-weight:700;font-size:1rem;border:none;cursor:pointer;letter-spacing:1px;transition:all 0.3s;font-family:'Montserrat',sans-serif;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 40px rgba(201,168,76,0.4);}
+.btn-outline{background:transparent;color:var(--gold);padding:16px 40px;border-radius:50px;font-weight:600;font-size:1rem;border:2px solid var(--gold);cursor:pointer;letter-spacing:1px;transition:all 0.3s;font-family:'Montserrat',sans-serif;}
+.btn-outline:hover{background:var(--gold);color:var(--dark);}
+
+/* ===== FORMS ===== */
+.form-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.form-card{background:rgba(18,18,26,0.9);border:1px solid var(--border);border-radius:24px;padding:50px 40px;width:100%;max-width:550px;backdrop-filter:blur(30px);box-shadow:0 40px 80px rgba(0,0,0,0.5);}
+.form-card h2{font-family:'Bebas Neue',cursive;font-size:2.5rem;letter-spacing:3px;margin-bottom:6px;background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.form-card p.sub{color:var(--text2);font-size:0.85rem;margin-bottom:30px;}
+.form-group{margin-bottom:20px;}
+.form-group label{display:block;color:var(--gold);font-size:0.75rem;letter-spacing:2px;font-weight:600;margin-bottom:8px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:0.9rem;outline:none;transition:all 0.3s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:rgba(201,168,76,0.05);box-shadow:0 0 0 3px rgba(201,168,76,0.1);}
+.form-group select option{background:var(--dark2);}
+.form-group textarea{resize:vertical;min-height:100px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.otp-inputs{display:flex;gap:10px;justify-content:center;}
+.otp-inputs input{width:50px;height:55px;text-align:center;font-size:1.4rem;font-weight:700;border-radius:10px;border:2px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);outline:none;transition:all 0.3s;}
+.otp-inputs input:focus{border-color:var(--gold);background:rgba(201,168,76,0.05);}
+.btn-full{width:100%;padding:16px;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;border:none;font-family:'Montserrat',sans-serif;letter-spacing:1px;transition:all 0.3s;margin-top:10px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--dark);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(201,168,76,0.3);}
+.btn-accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.form-link{text-align:center;margin-top:20px;color:var(--text2);font-size:0.85rem;}
+.form-link a{color:var(--gold);cursor:pointer;text-decoration:none;font-weight:600;}
+.form-link a:hover{text-decoration:underline;}
+.alert{padding:14px 18px;border-radius:10px;font-size:0.85rem;margin-bottom:16px;display:none;}
+.alert.show{display:block;}
+.alert-success{background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:var(--success);}
+.alert-error{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.3);color:var(--error);}
+.alert-info{background:rgba(58,123,213,0.1);border:1px solid rgba(58,123,213,0.3);color:var(--accent2);}
+.step-indicator{display:flex;gap:8px;margin-bottom:30px;justify-content:center;}
+.step{width:35px;height:4px;border-radius:2px;background:var(--border);transition:all 0.3s;}
+.step.active{background:var(--gold);}
+.step.done{background:var(--success);}
+.cert-upload{border:2px dashed var(--border);border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:all 0.3s;}
+.cert-upload:hover{border-color:var(--gold);background:rgba(201,168,76,0.05);}
+.cert-upload input[type=file]{display:none;}
+.cert-icon{font-size:2rem;margin-bottom:10px;}
+.cert-status{margin-top:16px;padding:12px 16px;border-radius:10px;font-size:0.85rem;display:none;}
+.cert-status.show{display:block;}
+.policy-box{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:20px;max-height:200px;overflow-y:auto;font-size:0.8rem;color:var(--text2);line-height:1.8;margin-bottom:16px;}
+.policy-box h4{color:var(--gold);margin-bottom:10px;font-size:0.85rem;}
+.occ-search{position:relative;}
+.occ-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--dark2);border:1px solid var(--border);border-radius:10px;max-height:200px;overflow-y:auto;z-index:50;display:none;}
+.occ-dropdown.show{display:block;}
+.occ-item{padding:12px 16px;cursor:pointer;font-size:0.85rem;transition:background 0.2s;}
+.occ-item:hover{background:rgba(201,168,76,0.1);color:var(--gold);}
+.skills-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.skill-tag{background:rgba(201,168,76,0.15);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.75rem;color:var(--gold);cursor:pointer;transition:all 0.2s;}
+.skill-tag:hover,.skill-tag.selected{background:var(--gold);color:var(--dark);}
+
+/* ===== DASHBOARD ===== */
+#dashboard-page{min-height:100vh;padding:30px 40px;}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;}
+.dash-welcome h2{font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:2px;}
+.dash-welcome p{color:var(--text2);font-size:0.85rem;}
+.verified-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:20px;padding:6px 16px;color:var(--success);font-size:0.8rem;font-weight:600;}
+.dash-grid{display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start;}
+.sidebar{display:flex;flex-direction:column;gap:16px;}
+.profile-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;backdrop-filter:blur(10px);}
+.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--dark);margin:0 auto 14px;}
+.profile-card h3{font-size:1rem;margin-bottom:4px;}
+.profile-card p{color:var(--text2);font-size:0.8rem;}
+.profile-card .occ{color:var(--gold);font-size:0.8rem;margin-top:6px;font-weight:600;}
+.nav-menu{background:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;backdrop-filter:blur(10px);}
+.nav-item{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid var(--border);font-size:0.85rem;}
+.nav-item:last-child{border-bottom:none;}
+.nav-item:hover,.nav-item.active{background:rgba(201,168,76,0.1);color:var(--gold);}
+.nav-item .icon{font-size:1.1rem;}
+.main-content{display:flex;flex-direction:column;gap:24px;}
+.content-panel{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(10px);}
+.content-panel h3{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--gold);margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;}
+.stat-num{font-family:'Bebas Neue',cursive;font-size:2.5rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-label{color:var(--text2);font-size:0.75rem;letter-spacing:1px;}
+.client-list{display:flex;flex-direction:column;gap:12px;}
+.client-card{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:16px;}
+.client-avatar{width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff;flex-shrink:0;}
+.client-info{flex:1;}
+.client-info h4{font-size:0.9rem;margin-bottom:3px;}
+.client-info p{color:var(--text2);font-size:0.78rem;}
+.client-status{padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:600;}
+.status-pending{background:rgba(255,200,0,0.1);color:#FFC800;border:1px solid rgba(255,200,0,0.3);}
+.status-agreed{background:rgba(0,230,118,0.1);color:var(--success);border:1px solid rgba(0,230,118,0.3);}
+.chat-btn{padding:8px 16px;border-radius:20px;border:1px solid var(--gold);color:var(--gold);background:transparent;cursor:pointer;font-size:0.78rem;font-family:'Montserrat',sans-serif;transition:all 0.2s;}
+.chat-btn:hover{background:var(--gold);color:var(--dark);}
+
+/* CHAT */
+.chat-window{display:none;position:fixed;right:90px;bottom:20px;width:380px;height:550px;background:var(--dark2);border:1px solid var(--border);border-radius:20px;flex-direction:column;overflow:hidden;z-index:200;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.chat-window.open{display:flex;}
+.chat-header{background:linear-gradient(135deg,var(--dark3),var(--dark2));padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.chat-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:var(--dark);}
+.chat-name{font-weight:600;font-size:0.9rem;}
+.chat-online{font-size:0.7rem;color:var(--success);}
+.close-chat{margin-left:auto;background:none;border:none;color:var(--text2);cursor:pointer;font-size:1.2rem;}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.msg{max-width:75%;padding:10px 14px;border-radius:14px;font-size:0.82rem;line-height:1.5;}
+.msg.sent{align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--dark);border-radius:14px 14px 4px 14px;}
+.msg.recv{align-self:flex-start;background:rgba(255,255,255,0.07);color:var(--text);border-radius:14px 14px 14px 4px;}
+.msg-time{font-size:0.65rem;opacity:0.6;margin-top:4px;}
+.chat-input-area{padding:14px;border-top:1px solid var(--border);display:flex;gap:10px;}
+.chat-input-area input{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:25px;padding:10px 16px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:0.82rem;outline:none;}
+.chat-send{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dark);}
+.agree-btn{width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--success),#00a152);border:none;color:#fff;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;margin-top:10px;font-size:0.9rem;}
+.policy-warning{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.2);border-radius:8px;padding:8px 12px;font-size:0.72rem;color:var(--error);margin-bottom:8px;}
+
+/* EOM AI */
+.eom-btn{position:fixed;bottom:24px;right:24px;z-index:300;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--accent2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(201,168,76,0.4);transition:all 0.3s;flex-direction:column;}
+.eom-btn:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(201,168,76,0.6);}
+.eom-btn span{font-size:0.45rem;color:var(--dark);font-weight:900;letter-spacing:1px;line-height:1;}
+.eom-btn .eom-icon{font-size:1.4rem;}
+.eom-panel{position:fixed;bottom:100px;right:24px;width:360px;height:500px;background:var(--dark2);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:300;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.eom-panel.open{display:flex;}
+.eom-header{padding:16px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:20px 20px 0 0;display:flex;align-items:center;gap:10px;}
+.eom-header .title{font-family:'Bebas Neue',cursive;letter-spacing:2px;color:var(--dark);font-size:1.2rem;}
+.eom-header .sub{font-size:0.65rem;color:rgba(0,0,0,0.6);}
+.eom-close{margin-left:auto;background:none;border:none;color:var(--dark);cursor:pointer;font-size:1.1rem;font-weight:700;}
+.eom-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.eom-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:0.8rem;line-height:1.5;}
+.eom-msg.ai{align-self:flex-start;background:rgba(201,168,76,0.1);border:1px solid var(--border);color:var(--text);}
+.eom-msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--dark);}
+.eom-input-row{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.eom-input-row input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:10px 14px;color:var(--text);font-size:0.8rem;font-family:'Montserrat',sans-serif;outline:none;}
+.eom-send{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;cursor:pointer;font-size:0.9rem;color:var(--dark);}
+.typing{display:flex;gap:4px;padding:10px 14px;align-self:flex-start;}
+.typing span{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:bounce 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:0.2s;}
+.typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-10px);}}
+
+/* LOGOUT BTN */
+.logout-btn{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.3);color:var(--error);padding:8px 18px;border-radius:20px;cursor:pointer;font-size:0.8rem;font-family:'Montserrat',sans-serif;transition:all 0.2s;}
+.logout-btn:hover{background:var(--error);color:#fff;}
+
+/* SUSPEND BANNER */
+.suspend-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:500;background:var(--error);color:#fff;text-align:center;padding:14px;font-weight:600;font-size:0.9rem;}
+.suspend-banner.show{display:block;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .dash-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .nav{padding:16px 20px;}
+  #dashboard-page{padding:20px;}
+  .chat-window{width:calc(100vw - 20px);right:10px;}
+}
+</style>
+</head>
+<body>
+
+<div class="video-bg"><div class="video-fallback"></div></div>
+<div class="noise"></div>
+
+<div class="suspend-banner" id="suspendBanner">⚠️ Your account has been suspended due to policy violations. Under admin review.</div>
+
+<div id="app">
+  <nav class="nav">
+    <div class="logo">REK<span>O</span></div>
+    <div class="nav-badge">PROFESSIONAL PORTAL</div>
+    <button class="logout-btn" id="logoutBtn" style="display:none" onclick="logout()">Sign Out</button>
+  </nav>
+
+  <!-- LANDING PAGE -->
+  <div id="landing-page" class="page active">
+    <div class="hero">
+      <div class="hero-tag">✦ CERTIFIED PROFESSIONAL NETWORK ✦</div>
+      <h1>
+        <span class="line1">CONNECT.</span>
+        <span class="line2">CERTIFY. GROW.</span>
+      </h1>
+      <p class="hero-sub">REKO connects verified, certified professionals with clients who need expert services. Your credentials matter — we prove it.</p>
+      <div class="hero-desc">
+        <h3>⚡ WHO IS THIS FOR?</h3>
+        <p>This portal is for <strong style="color:var(--gold)">skilled professionals, freelancers, and service providers</strong> who want to offer their expertise to clients. You will register, verify your professional certifications with official bodies, and get matched with clients looking for exactly your skills. Every professional on REKO is verified — no imposters, no fraud.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card"><div class="feat-icon">🏅</div><h4>CERTIFIED</h4><p>Your certificates verified directly against official certification body databases.</p></div>
+        <div class="feat-card"><div class="feat-icon">🔐</div><h4>ENCRYPTED</h4><p>End-to-end encrypted conversations. Your privacy is our priority.</p></div>
+        <div class="feat-card"><div class="feat-icon">🤖</div><h4>EOM AI</h4><p>Personal AI assistant available 24/7 to help you navigate the platform.</p></div>
+        <div class="feat-card"><div class="feat-icon">💼</div><h4>CLIENTS READY</h4><p>Verified clients actively seeking professionals like you, matched by specialty.</p></div>
+        <div class="feat-card"><div class="feat-icon">🛡️</div><h4>POLICY SAFE</h4><p>Strict policies protect all users. Violations are flagged immediately.</p></div>
+        <div class="feat-card"><div class="feat-icon">🌍</div><h4>NATIONWIDE</h4><p>Operate across your country with locally verified credentials.</p></div>
+      </div>
+      <div class="cta-group">
+        <button class="btn-primary" onclick="showPage('register-page')">Register as Professional</button>
+        <button class="btn-outline" onclick="showPage('login-page')">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER PAGE -->
+  <div id="register-page" class="page">
+    <div class="form-container">
+      <div class="form-card">
+        <div class="step-indicator">
+          <div class="step active" id="step1-dot"></div>
+          <div class="step" id="step2-dot"></div>
+          <div class="step" id="step3-dot"></div>
+          <div class="step" id="step4-dot"></div>
+          <div class="step" id="step5-dot"></div>
+        </div>
+        <div id="reg-step-1">
+          <h2>JOIN REKO</h2>
+          <p class="sub">Step 1 of 5 — Your Basic Details</p>
+          <div class="alert alert-error" id="reg-err1"></div>
+          <div class="form-row">
+            <div class="form-group"><label>FIRST NAME</label><input id="r-fname" type="text" placeholder="John"></div>
+            <div class="form-group"><label>LAST NAME</label><input id="r-lname" type="text" placeholder="Doe"></div>
+          </div>
+          <div class="form-group"><label>EMAIL ADDRESS</label><input id="r-email" type="email" placeholder="john@email.com"></div>
+          <div class="form-group"><label>PHONE NUMBER</label><input id="r-phone" type="tel" placeholder="+1 234 567 8900"></div>
+          <div class="form-row">
+            <div class="form-group"><label>PASSWORD</label><input id="r-pass" type="password" placeholder="••••••••"></div>
+            <div class="form-group"><label>CONFIRM PASSWORD</label><input id="r-pass2" type="password" placeholder="••••••••"></div>
+          </div>
+          <div class="form-group"><label>COUNTRY</label>
+            <select id="r-country">
+              <option value="">Select country...</option>
+              <option>South Africa</option><option>United States</option><option>United Kingdom</option><option>Nigeria</option><option>Kenya</option><option>Zimbabwe</option><option>Ghana</option><option>Australia</option><option>Canada</option><option>India</option>
+            </select>
+          </div>
+          <button class="btn-full btn-gold" onclick="step1Next()">Continue →</button>
+          <p class="form-link">Already registered? <a onclick="showPage('login-page')">Sign In</a></p>
+        </div>
+
+        <div id="reg-step-2" style="display:none">
+          <h2>VERIFY OTP</h2>
+          <p class="sub">Step 2 of 5 — OTPs sent to your email & phone</p>
+          <div class="alert alert-info show">📧 OTP sent to your email and 📱 SMS to your phone. Enter both below.</div>
+          <div class="form-group"><label>EMAIL OTP (6 digits)</label>
+            <div class="otp-inputs" id="email-otp-inputs">
+              <input type="text" maxlength="1" oninput="otpMove(this,'email-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'email-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'email-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'email-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'email-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'email-otp-inputs')">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:20px"><label>PHONE OTP (6 digits)</label>
+            <div class="otp-inputs" id="phone-otp-inputs">
+              <input type="text" maxlength="1" oninput="otpMove(this,'phone-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'phone-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'phone-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'phone-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'phone-otp-inputs')">
+              <input type="text" maxlength="1" oninput="otpMove(this,'phone-otp-inputs')">
+            </div>
+          </div>
+          <div class="alert alert-error" id="reg-err2"></div>
+          <button class="btn-full btn-gold" onclick="step2Verify()">Verify OTPs →</button>
+        </div>
+
+        <div id="reg-step-3" style="display:none">
+          <h2>YOUR EXPERTISE</h2>
+          <p class="sub">Step 3 of 5 — Professional Profile</p>
+          <div class="form-group">
+            <label>OCCUPATION / SPECIALIZATION</label>
+            <div class="occ-search">
+              <input id="occ-input" type="text" placeholder="Search or type your occupation..." oninput="searchOcc(this.value)" onfocus="showOccDropdown()" autocomplete="off">
+              <div class="occ-dropdown" id="occ-dropdown"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>YEARS OF EXPERIENCE</label>
+            <select id="r-exp"><option value="">Select...</option><option>Less than 1 year</option><option>1-2 years</option><option>3-5 years</option><option>5-10 years</option><option>10+ years</option></select>
+          </div>
+          <div class="form-group">
+            <label>KEY SKILLS (select all that apply)</label>
+            <div class="skills-tags" id="skills-tags"></div>
+          </div>
+          <div class="form-group">
+            <label>BIO / PROFESSIONAL SUMMARY</label>
+            <textarea id="r-bio" placeholder="Describe your expertise, achievements, and what makes you exceptional..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>LANGUAGES SPOKEN</label>
+            <input id="r-langs" type="text" placeholder="e.g. English, Zulu, Afrikaans">
+          </div>
+          <div class="form-group">
+            <label>AVAILABILITY</label>
+            <select id="r-avail"><option>Full-time</option><option>Part-time</option><option>Weekends only</option><option>Remote only</option><option>On-site only</option></select>
+          </div>
+          <button class="btn-full btn-gold" onclick="step3Next()">Continue →</button>
+        </div>
+
+        <div id="reg-step-4" style="display:none">
+          <h2>CERTIFICATION</h2>
+          <p class="sub">Step 4 of 5 — Verify your credentials</p>
+          <div class="alert alert-info show">📋 Upload a certificate from your official professional body. We will verify it against our partner databases.</div>
+          <div class="form-group">
+            <label>CERTIFICATION BODY</label>
+            <select id="r-cert-body">
+              <option value="">Select body...</option>
+              <option>South African Institute of Chartered Accountants (SAICA)</option>
+              <option>Health Professions Council of South Africa (HPCSA)</option>
+              <option>Engineering Council of South Africa (ECSA)</option>
+              <option>South African Council for Educators (SACE)</option>
+              <option>Law Society of South Africa</option>
+              <option>South African Nursing Council (SANC)</option>
+              <option>Institute of Electrical Engineers (IEE)</option>
+              <option>Project Management Institute (PMI)</option>
+              <option>Chartered Institute of IT (BCS)</option>
+              <option>Other International Body</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CERTIFICATE NUMBER</label>
+            <input id="r-cert-num" type="text" placeholder="e.g. SAICA-2024-001234">
+          </div>
+          <div class="form-group">
+            <label>UPLOAD CERTIFICATE DOCUMENT</label>
+            <label class="cert-upload" for="cert-file-input">
+              <input type="file" id="cert-file-input" accept=".pdf,.jpg,.png" onchange="certFileSelected(this)">
+              <div class="cert-icon">📄</div>
+              <div style="color:var(--text2);font-size:0.85rem">Click to upload certificate (PDF, JPG, PNG)</div>
+            </label>
+          </div>
+          <div class="cert-status alert-info" id="cert-status"></div>
+          <button class="btn-full btn-gold" onclick="step4Certify()">Verify Certificate →</button>
+        </div>
+
+        <div id="reg-step-5" style="display:none">
+          <h2>POLICIES</h2>
+          <p class="sub">Step 5 of 5 — Read and Accept Terms</p>
+          <div class="policy-box">
+            <h4>📜 REKO PROFESSIONAL PLATFORM POLICIES</h4>
+            <p><strong>1. Conduct:</strong> You agree to conduct yourself professionally at all times. Harassment, discrimination, or abusive language is strictly prohibited.</p>
+            <p><strong>2. Authenticity:</strong> All information provided must be truthful. False credentials will result in immediate and permanent suspension.</p>
+            <p><strong>3. Communication:</strong> Conversations must remain professional. Sharing harmful content, explicit material, or unsolicited contact information before both parties agree is forbidden.</p>
+            <p><strong>4. Privacy:</strong> You may not share another user's personal details outside the platform. Contact sharing is only allowed after both parties press the AGREED button.</p>
+            <p><strong>5. Violations:</strong> 4 policy violations within 24 hours results in automatic suspension pending admin review.</p>
+            <p><strong>6. Session:</strong> You remain logged in for 5 days. Only one active session is allowed at a time.</p>
+            <p><strong>7. Suspensions:</strong> Suspended accounts are reviewed by admins. Decisions are final unless appealed through official channels.</p>
+            <p><strong>8. Data:</strong> Your personal data is encrypted and visible only to administrators. Only your professional name is visible to clients.</p>
+          </div>
+          <div class="alert alert-error" id="reg-err5"></div>
+          <button class="btn-full btn-gold" onclick="step5Complete()">✅ I Agree — Complete Registration</button>
+          <button class="btn-full" style="background:rgba(255,82,82,0.1);color:var(--error);border:1px solid rgba(255,82,82,0.3);border-radius:12px;padding:14px;cursor:pointer;margin-top:8px;font-family:Montserrat,sans-serif;" onclick="showPage('landing-page')">❌ Disagree — Go Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <div id="login-page" class="page">
+    <div class="form-container">
+      <div class="form-card">
+        <h2>WELCOME BACK</h2>
+        <p class="sub">Sign in to your Professional account</p>
+        <div class="alert alert-error" id="login-err"></div>
+        <div class="alert alert-success" id="login-success"></div>
+        <div class="form-group"><label>EMAIL ADDRESS</label><input id="l-email" type="email" placeholder="john@email.com"></div>
+        <div class="form-group"><label>PASSWORD</label><input id="l-pass" type="password" placeholder="••••••••"></div>
+        <button class="btn-full btn-gold" onclick="doLogin()">Sign In →</button>
+        <p class="form-link">New here? <a onclick="showPage('register-page')">Register as Professional</a></p>
+        <p class="form-link" style="margin-top:8px"><a onclick="showPage('landing-page')">← Back to home</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard-page" class="page">
+    <div class="dash-header">
+      <div class="dash-welcome">
+        <h2>GOOD DAY, <span id="dash-name" style="background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PROFESSIONAL</span></h2>
+        <p style="color:var(--text2);font-size:0.85rem">Your REKO Professional Dashboard</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="verified-badge" id="verified-badge">✅ CERTIFIED</span>
+        <button class="logout-btn" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">CLIENTS REACHED</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">ACTIVE CHATS</div></div>
+      <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">AGREEMENTS</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="sidebar">
+        <div class="profile-card">
+          <div class="avatar" id="dash-avatar">JP</div>
+          <h3 id="dash-fullname">John Professional</h3>
+          <p id="dash-country" style="color:var(--text2);font-size:0.78rem">South Africa</p>
+          <p class="occ" id="dash-occ">Software Engineer</p>
+        </div>
+        <div class="nav-menu">
+          <div class="nav-item active" onclick="switchTab('overview')"><span class="icon">📊</span> Overview</div>
+          <div class="nav-item" onclick="switchTab('clients')"><span class="icon">👥</span> My Clients</div>
+          <div class="nav-item" onclick="switchTab('profile')"><span class="icon">✏️</span> Edit Profile</div>
+          <div class="nav-item" onclick="switchTab('settings')"><span class="icon">⚙️</span> Settings</div>
+        </div>
+      </div>
+      <div class="main-content" id="main-content">
+        <div class="content-panel" id="tab-overview">
+          <h3>RECENT ACTIVITY</h3>
+          <div class="client-list" id="client-list">
+            <div class="client-card">
+              <div class="client-avatar">AN</div>
+              <div class="client-info"><h4>Client A.N.</h4><p>Interested in Software Development</p></div>
+              <span class="client-status status-pending">Pending</span>
+              <button class="chat-btn" onclick="openChat('A.N.','client')">Chat</button>
+            </div>
+            <div class="client-card">
+              <div class="client-avatar">MB</div>
+              <div class="client-info"><h4>Client M.B.</h4><p>Needs Legal Consultation</p></div>
+              <span class="client-status status-agreed">Agreed</span>
+              <button class="chat-btn" onclick="openChat('M.B.','client')">Chat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT CHAT WINDOW -->
+<div class="chat-window" id="client-chat">
+  <div class="chat-header">
+    <div class="chat-avatar" id="chat-av">AN</div>
+    <div><div class="chat-name" id="chat-name">Client A.N.</div><div class="chat-online">● Online</div></div>
+    <button class="close-chat" onclick="closeChat()">✕</button>
+  </div>
+  <div class="policy-warning">⚠️ Policy applies. Harmful content or sharing contacts before agreement results in suspension.</div>
+  <div class="chat-messages" id="chat-msgs">
+    <div class="msg recv">Hello! I am interested in your services.<span class="msg-time">09:41</span></div>
+  </div>
+  <div id="agree-section" style="padding:0 14px 10px">
+    <button class="agree-btn" onclick="pressAgree()" id="agree-btn">🤝 PRESS AGREED — Both parties must confirm</button>
+  </div>
+  <div class="chat-input-area">
+    <input id="chat-in" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="chat-send" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- EOM AI -->
+<div class="eom-panel" id="eomPanel">
+  <div class="eom-header">
+    <div><div class="title">EOM AI</div><div class="sub">Your REKO Professional Assistant</div></div>
+    <button class="eom-close" onclick="toggleEOM()">✕</button>
+  </div>
+  <div class="eom-msgs" id="eomMsgs">
+    <div class="eom-msg ai">👋 Hello! I'm EOM AI, your personal REKO assistant. How can I help you today?</div>
+  </div>
+  <div class="eom-input-row">
+    <input id="eomIn" type="text" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')eomSend()">
+    <button class="eom-send" onclick="eomSend()">➤</button>
+  </div>
+</div>
+<button class="eom-btn" onclick="toggleEOM()">
+  <span class="eom-icon">🤖</span>
+  <span>EOM AI</span>
+</button>
+
+<script>
+// ===================== STATE =====================
+const STORAGE_KEY = 'reko_user1';
+const SESSION_DURATION = 5 * 24 * 60 * 60 * 1000;
+const OCCUPATIONS = ['Software Engineer','Data Scientist','Lawyer','Chartered Accountant','Doctor','Nurse','Architect','Civil Engineer','Electrical Engineer','Mechanical Engineer','Teacher','Professor','Psychologist','Financial Analyst','Marketing Specialist','Graphic Designer','Web Developer','Network Engineer','Pharmacist','Physiotherapist','Dentist','Veterinarian','Social Worker','Project Manager','HR Manager','Chef','Interior Designer','Journalist','Photographer','Surveyor','Quantity Surveyor','Plumber','Electrician','Carpenter'];
+const SKILLS_BY_OCC = {'Software Engineer':['JavaScript','Python','Java','React','Node.js','SQL','Cloud','DevOps'],'Lawyer':['Contract Law','Criminal Law','Family Law','Corporate Law','Litigation','Arbitration'],'Doctor':['Surgery','Diagnosis','Pediatrics','Cardiology','Emergency Medicine'],'default':['Leadership','Communication','Problem Solving','Research','Management','Teamwork','Project Planning']};
+let currentUser = null;
+let policyViolations = 0;
+let violationTimer = null;
+let chatOpen = false;
+let eomOpen = false;
+let regData = {};
+let mockOtpEmail = '123456';
+let mockOtpPhone = '654321';
+
+// ===================== SESSION CHECK =====================
+function initApp(){
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if(stored){
+    try{
+      const data = JSON.parse(stored);
+      const now = Date.now();
+      if(data.sessionStart && (now - data.sessionStart) < SESSION_DURATION){
+        currentUser = data;
+        showPage('dashboard-page');
+        populateDashboard();
+        document.getElementById('logoutBtn').style.display='none';
+        return;
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }catch(e){}
+  }
+  showPage('landing-page');
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ===================== REGISTER =====================
+function updateStepDots(active){
+  for(let i=1;i<=5;i++){
+    const d=document.getElementById('step'+i+'-dot');
+    d.className='step';
+    if(i<active) d.classList.add('done');
+    else if(i===active) d.classList.add('active');
+  }
+}
+
+function step1Next(){
+  const fname=document.getElementById('r-fname').value.trim();
+  const lname=document.getElementById('r-lname').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const phone=document.getElementById('r-phone').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const pass2=document.getElementById('r-pass2').value;
+  const country=document.getElementById('r-country').value;
+  const err=document.getElementById('reg-err1');
+  if(!fname||!lname||!email||!phone||!pass||!country){
+    showAlert(err,'All fields are required.'); return;
+  }
+  if(pass!==pass2){showAlert(err,'Passwords do not match.'); return;}
+  if(pass.length<8){showAlert(err,'Password must be at least 8 characters.'); return;}
+  regData={fname,lname,email,phone,pass,country};
+  document.getElementById('reg-step-1').style.display='none';
+  document.getElementById('reg-step-2').style.display='block';
+  updateStepDots(2);
+  // In real app: send OTP via Twilio/Nodemailer
+  console.log('Mock OTP Email:',mockOtpEmail,'Phone:',mockOtpPhone);
+  showAlert(document.querySelector('#reg-step-2 .alert-info'),'Demo OTPs — Email: 123456 | Phone: 654321','info');
+}
+
+function otpMove(el,groupId){
+  if(el.value.length===1){
+    const inputs=document.getElementById(groupId).querySelectorAll('input');
+    const idx=[...inputs].indexOf(el);
+    if(idx<inputs.length-1) inputs[idx+1].focus();
+  }
+}
+
+function getOTP(groupId){
+  return [...document.getElementById(groupId).querySelectorAll('input')].map(i=>i.value).join('');
+}
+
+function step2Verify(){
+  const emailOtp=getOTP('email-otp-inputs');
+  const phoneOtp=getOTP('phone-otp-inputs');
+  const err=document.getElementById('reg-err2');
+  if(emailOtp!==mockOtpEmail||phoneOtp!==mockOtpPhone){
+    showAlert(err,'Incorrect OTP(s). Please check and try again.'); return;
+  }
+  document.getElementById('reg-step-2').style.display='none';
+  document.getElementById('reg-step-3').style.display='block';
+  updateStepDots(3);
+  loadOccDropdown('');
+  loadSkillTags('default');
+}
+
+function searchOcc(val){
+  loadOccDropdown(val);
+  document.getElementById('occ-dropdown').classList.add('show');
+}
+function showOccDropdown(){document.getElementById('occ-dropdown').classList.add('show');}
+function loadOccDropdown(filter){
+  const dd=document.getElementById('occ-dropdown');
+  const filtered=OCCUPATIONS.filter(o=>o.toLowerCase().includes(filter.toLowerCase()));
+  dd.innerHTML=filtered.map(o=>`<div class="occ-item" onclick="selectOcc('${o}')">${o}</div>`).join('');
+  if(filtered.length===0) dd.innerHTML='<div class="occ-item" style="color:var(--text2)">Type to add custom occupation</div>';
+}
+function selectOcc(occ){
+  document.getElementById('occ-input').value=occ;
+  document.getElementById('occ-dropdown').classList.remove('show');
+  loadSkillTags(occ);
+}
+function loadSkillTags(occ){
+  const container=document.getElementById('skills-tags');
+  const skills=SKILLS_BY_OCC[occ]||SKILLS_BY_OCC['default'];
+  container.innerHTML=skills.map(s=>`<span class="skill-tag" onclick="this.classList.toggle('selected')">${s}</span>`).join('');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.occ-search')) document.getElementById('occ-dropdown').classList.remove('show');});
+
+function step3Next(){
+  const occ=document.getElementById('occ-input').value.trim();
+  const bio=document.getElementById('r-bio').value.trim();
+  if(!occ||!bio){alert('Please fill occupation and bio.'); return;}
+  regData.occ=occ;
+  regData.bio=bio;
+  regData.exp=document.getElementById('r-exp').value;
+  regData.langs=document.getElementById('r-langs').value;
+  regData.avail=document.getElementById('r-avail').value;
+  regData.skills=[...document.querySelectorAll('.skill-tag.selected')].map(s=>s.textContent);
+  document.getElementById('reg-step-3').style.display='none';
+  document.getElementById('reg-step-4').style.display='block';
+  updateStepDots(4);
+}
+
+function certFileSelected(input){
+  if(input.files[0]){
+    const st=document.getElementById('cert-status');
+    st.className='cert-status alert-info show';
+    st.textContent='📎 File selected: '+input.files[0].name;
+  }
+}
+
+function step4Certify(){
+  const body=document.getElementById('r-cert-body').value;
+  const num=document.getElementById('r-cert-num').value.trim();
+  const file=document.getElementById('cert-file-input').files[0];
+  if(!body||!num||!file){alert('Please select certification body, enter certificate number, and upload document.'); return;}
+  const st=document.getElementById('cert-status');
+  st.className='cert-status alert-info show';
+  st.textContent='🔍 Verifying certificate with '+body+'...';
+  // Simulate verification
+  setTimeout(()=>{
+    const certified=true; // In real app: API call to certification body database
+    if(certified){
+      st.className='cert-status alert-success show';
+      st.style.display='block';
+      st.textContent='✅ Certificate verified! You are certified by '+body;
+      regData.certified=true;
+      regData.certBody=body;
+      regData.certNum=num;
+      setTimeout(()=>{
+        document.getElementById('reg-step-4').style.display='none';
+        document.getElementById('reg-step-5').style.display='block';
+        updateStepDots(5);
+      },2000);
+    } else {
+      st.className='cert-status alert-error show';
+      st.style.display='block';
+      st.textContent='❌ Certificate could not be verified. Please check your certificate number and try again.';
+    }
+  },2500);
+}
+
+function step5Complete(){
+  regData.sessionStart=Date.now();
+  regData.id='USER1_'+Date.now();
+  regData.suspended=false;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(regData));
+  currentUser=regData;
+  showPage('dashboard-page');
+  populateDashboard();
+}
+
+// ===================== LOGIN =====================
+function doLogin(){
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  const err=document.getElementById('login-err');
+  const ok=document.getElementById('login-success');
+  if(!email||!pass){showAlert(err,'Please enter email and password.'); return;}
+  const stored=localStorage.getItem(STORAGE_KEY);
+  if(!stored){showAlert(err,'No account found. Please register first.'); return;}
+  try{
+    const data=JSON.parse(stored);
+    if(data.email===email&&data.pass===pass){
+      // Single session enforcement
+      data.sessionStart=Date.now();
+      data.deviceId=generateDeviceId();
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+      currentUser=data;
+      showAlert(ok,'✅ Login successful! Redirecting...','success');
+      setTimeout(()=>{showPage('dashboard-page');populateDashboard();},1500);
+    } else {
+      showAlert(err,'Invalid email or password.');
+    }
+  }catch(e){showAlert(err,'Login error. Please try again.');}
+}
+
+function generateDeviceId(){return 'DEV_'+Math.random().toString(36).substr(2,9);}
+
+function logout(){
+  localStorage.removeItem(STORAGE_KEY);
+  currentUser=null;
+  showPage('landing-page');
+}
+
+// ===================== DASHBOARD =====================
+function populateDashboard(){
+  if(!currentUser) return;
+  const name=currentUser.fname+' '+currentUser.lname;
+  document.getElementById('dash-name').textContent=currentUser.fname?.toUpperCase()||'PROFESSIONAL';
+  document.getElementById('dash-fullname').textContent=name;
+  document.getElementById('dash-country').textContent=currentUser.country||'';
+  document.getElementById('dash-occ').textContent=currentUser.occ||'Professional';
+  document.getElementById('dash-avatar').textContent=(currentUser.fname?.[0]||'P')+(currentUser.lname?.[0]||'R');
+  if(!currentUser.certified){
+    document.getElementById('verified-badge').textContent='⏳ PENDING VERIFICATION';
+    document.getElementById('verified-badge').style.background='rgba(255,200,0,0.1)';
+    document.getElementById('verified-badge').style.color='#FFC800';
+  }
+  if(currentUser.suspended){
+    document.getElementById('suspendBanner').classList.add('show');
+  }
+  sendLoginAlert();
+}
+
+function sendLoginAlert(){
+  // In real app: send email/SMS alert about login
+  console.log('Login alert sent to',currentUser?.email,'and',currentUser?.phone);
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+// ===================== CHAT =====================
+function openChat(name,type){
+  document.getElementById('chat-name').textContent='Client '+name;
+  document.getElementById('chat-av').textContent=name.split(' ').map(w=>w[0]).join('');
+  document.getElementById('client-chat').classList.add('open');
+  chatOpen=true;
+}
+function closeChat(){
+  document.getElementById('client-chat').classList.remove('open');
+  chatOpen=false;
+}
+
+const BANNED_PATTERNS=[/\b(kill|harm|hurt|abuse|rape|bomb|drug|porn|nude|naked)\b/i];
+function checkPolicy(msg){
+  return BANNED_PATTERNS.some(p=>p.test(msg));
+}
+
+function sendMsg(){
+  const input=document.getElementById('chat-in');
+  const msg=input.value.trim();
+  if(!msg) return;
+  if(checkPolicy(msg)){
+    handleViolation();
+    input.value='';
+    return;
+  }
+  const msgs=document.getElementById('chat-msgs');
+  const now=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  msgs.innerHTML+=`<div class="msg sent">${escHtml(msg)}<span class="msg-time">${now}</span></div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  input.value='';
+  // Simulate reply
+  setTimeout(()=>{
+    msgs.innerHTML+=`<div class="msg recv">Thank you for your message. I will get back to you shortly.<span class="msg-time">${now}</span></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+  },1500);
+}
+
+function handleViolation(){
+  policyViolations++;
+  if(!violationTimer){
+    violationTimer=setTimeout(()=>{policyViolations=0;violationTimer=null;},24*60*60*1000);
+  }
+  if(policyViolations>=4){
+    suspendUser();
+  } else {
+    alert(`⚠️ Policy Violation Warning (${policyViolations}/4). Your message was blocked. ${4-policyViolations} more violations will result in suspension.`);
+  }
+}
+
+function suspendUser(){
+  if(currentUser){
+    currentUser.suspended=true;
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(currentUser));
+  }
+  document.getElementById('suspendBanner').classList.add('show');
+  closeChat();
+  // In real app: send suspension details to admin
+  alert('🚫 Your account has been suspended due to repeated policy violations. An admin will review your case.');
+}
+
+function pressAgree(){
+  if(confirm('Are you sure you want to confirm AGREEMENT with this client? An email will be sent to both parties.')){
+    document.getElementById('agree-btn').textContent='✅ AGREED — Awaiting client confirmation';
+    document.getElementById('agree-btn').style.background='linear-gradient(135deg,#1a6b3c,#00a152)';
+    // In real app: send agree email to both parties
+    const msgs=document.getElementById('chat-msgs');
+    msgs.innerHTML+=`<div class="msg sent" style="background:linear-gradient(135deg,#00E676,#00a152)">🤝 I have pressed AGREED. Waiting for your confirmation.<span class="msg-time">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+    alert('📧 Agreement confirmation email sent! Once both parties confirm, you can exchange contact details.');
+  }
+}
+
+// ===================== EOM AI =====================
+function toggleEOM(){
+  eomOpen=!eomOpen;
+  document.getElementById('eomPanel').classList.toggle('open',eomOpen);
+}
+
+async function eomSend(){
+  const input=document.getElementById('eomIn');
+  const msg=input.value.trim();
+  if(!msg) return;
+  const msgs=document.getElementById('eomMsgs');
+  msgs.innerHTML+=`<div class="eom-msg user">${escHtml(msg)}</div>`;
+  input.value='';
+  msgs.scrollTop=msgs.scrollHeight;
+  // Typing indicator
+  const typingId='typing_'+Date.now();
+  msgs.innerHTML+=`<div class="typing" id="${typingId}"><span></span><span></span><span></span></div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'You are EOM AI, a helpful assistant embedded in the REKO professional networking platform. You help professionals (User 1s) navigate the platform, understand policies, manage their profiles, and get the most out of their REKO experience. Be concise, professional, and helpful.',
+        messages:[{role:'user',content:msg}]
+      })
+    });
+    const data=await res.json();
+    document.getElementById(typingId)?.remove();
+    const reply=data.content?.[0]?.text||'I apologize, I could not process that request.';
+    msgs.innerHTML+=`<div class="eom-msg ai">${escHtml(reply)}</div>`;
+  }catch(e){
+    document.getElementById(typingId)?.remove();
+    msgs.innerHTML+=`<div class="eom-msg ai">⚠️ EOM AI is temporarily offline. Please try again shortly.</div>`;
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+// ===================== UTILS =====================
+function showAlert(el,msg,type='error'){
+  el.textContent=msg;
+  el.className='alert show alert-'+(type==='success'?'success':type==='info'?'info':'error');
+  setTimeout(()=>el.classList.remove('show'),5000);
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ===================== INIT =====================
+initApp();
+</script>
+</body>
+</html>
