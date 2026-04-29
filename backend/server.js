@@ -878,7 +878,7 @@ io.on('connection', (socket) => {
 // ============================================================
 // STATIC FILES
 // ============================================================
-app.use('/user1', express.static(path.join(__dirname, '../frontend'), { index: 'user1.html' }));
+app.use('/user1', express.static(path.join(__dirname, '../fronted'), { index: 'user1.html' }));
 app.use('/user2', express.static(path.join(__dirname, '../frontend'), { index: 'user2.html' }));
 app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
