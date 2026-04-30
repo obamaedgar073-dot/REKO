@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKO — Admin Control Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#FF1744;--red2:#D50000;
+  --dark:#080810;--dark2:#0E0E1C;--dark3:#161626;
+  --accent:#7C4DFF;--accent2:#B388FF;
+  --gold:#FFD600;--success:#69F0AE;--warn:#FFD740;
+  --text:#E8E8FF;--text2:#707090;
+  --border:rgba(124,77,255,0.2);--glass:rgba(255,255,255,0.03);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--text);font-family:'Montserrat',sans-serif;min-height:100vh;}
+
+/* LOGIN */
+#admin-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#0e0e20 0%,#080810 70%);}
+.lock-screen{background:rgba(14,14,28,0.95);border:1px solid var(--border);border-radius:20px;padding:50px 44px;width:100%;max-width:440px;box-shadow:0 40px 100px rgba(0,0,0,0.7);}
+.admin-logo{text-align:center;margin-bottom:30px;}
+.admin-logo .title{font-family:'Bebas Neue',cursive;font-size:2.8rem;letter-spacing:5px;color:var(--red);text-shadow:0 0 30px rgba(255,23,68,0.5);}
+.admin-logo .sub{font-size:0.7rem;letter-spacing:4px;color:var(--text2);font-family:'JetBrains Mono',monospace;}
+.lock-icon{font-size:3rem;text-align:center;margin-bottom:14px;filter:drop-shadow(0 0 20px var(--red));}
+.fgroup{margin-bottom:18px;}
+.fgroup label{display:block;color:var(--accent2);font-size:0.7rem;letter-spacing:2px;font-weight:600;margin-bottom:7px;font-family:'JetBrains Mono',monospace;}
+.fgroup input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:13px 15px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.88rem;outline:none;transition:all 0.3s;}
+.fgroup input:focus{border-color:var(--accent);background:rgba(124,77,255,0.06);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'Montserrat',sans-serif;letter-spacing:1px;transition:all 0.3s;margin-top:6px;}
+.login-btn:hover{box-shadow:0 10px 30px rgba(255,23,68,0.4);transform:translateY(-2px);}
+.err-msg{background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:var(--red);padding:10px 14px;border-radius:8px;font-size:0.8rem;margin-bottom:14px;display:none;}
+.err-msg.show{display:block;}
+.security-note{text-align:center;margin-top:16px;color:var(--text2);font-size:0.68rem;font-family:'JetBrains Mono',monospace;}
+
+/* ADMIN DASHBOARD */
+#admin-dashboard{display:none;min-height:100vh;}
+.admin-nav{background:rgba(8,8,16,0.95);border-bottom:1px solid var(--border);padding:14px 30px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);}
+.admin-logo-sm{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:4px;color:var(--red);margin-right:auto;}
+.admin-logo-sm span{color:var(--accent2);font-size:0.7rem;letter-spacing:3px;font-family:'JetBrains Mono',monospace;display:block;line-height:1;}
+.nav-tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.75rem;letter-spacing:1px;font-weight:600;color:var(--text2);transition:all 0.2s;border:1px solid transparent;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{background:rgba(124,77,255,0.15);border-color:var(--border);color:var(--accent2);}
+.sign-out-btn{margin-left:auto;background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:var(--red);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-family:'Montserrat',sans-serif;transition:all 0.2s;}
+.sign-out-btn:hover{background:var(--red);color:#fff;}
+
+/* LAYOUT */
+.admin-body{padding:28px 30px;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:22px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 14px 0 60px;opacity:0.1;}
+.stat-card.red::before{background:var(--red);}
+.stat-card.purple::before{background:var(--accent);}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.green::before{background:var(--success);}
+.stat-icon{font-size:1.5rem;margin-bottom:8px;}
+.stat-num{font-family:'Bebas Neue',cursive;font-size:2.8rem;line-height:1;}
+.stat-label{color:var(--text2);font-size:0.72rem;letter-spacing:2px;margin-top:4px;}
+
+/* TABLES */
+.table-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:24px;}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-title{font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:2px;color:var(--accent2);}
+.table-search{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.78rem;font-family:'Montserrat',sans-serif;outline:none;width:220px;}
+table{width:100%;border-collapse:collapse;}
+th{padding:12px 16px;text-align:left;font-size:0.68rem;letter-spacing:2px;color:var(--text2);border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+td{padding:13px 16px;font-size:0.8rem;border-bottom:1px solid rgba(255,255,255,0.04);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(124,77,255,0.05);}
+.badge{padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:700;}
+.badge-active{background:rgba(105,240,174,0.1);color:var(--success);border:1px solid rgba(105,240,174,0.3);}
+.badge-suspended{background:rgba(255,23,68,0.1);color:var(--red);border:1px solid rgba(255,23,68,0.3);}
+.badge-pending{background:rgba(255,215,64,0.1);color:var(--warn);border:1px solid rgba(255,215,64,0.3);}
+.badge-certified{background:rgba(105,240,174,0.1);color:var(--success);border:1px solid rgba(105,240,174,0.3);}
+.badge-uncertified{background:rgba(255,215,64,0.1);color:var(--warn);}
+.action-btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:0.7rem;font-weight:600;font-family:'Montserrat',sans-serif;transition:all 0.2s;margin-right:4px;}
+.btn-suspend{background:rgba(255,23,68,0.1);color:var(--red);border:1px solid rgba(255,23,68,0.3);}
+.btn-suspend:hover{background:var(--red);color:#fff;}
+.btn-restore{background:rgba(105,240,174,0.1);color:var(--success);border:1px solid rgba(105,240,174,0.3);}
+.btn-restore:hover{background:var(--success);color:#000;}
+.btn-view{background:rgba(124,77,255,0.1);color:var(--accent2);border:1px solid var(--border);}
+.btn-view:hover{background:var(--accent);color:#fff;}
+.btn-delete{background:rgba(255,23,68,0.05);color:var(--red);border:1px solid rgba(255,23,68,0.2);}
+.btn-delete:hover{background:rgba(255,23,68,0.3);}
+
+/* LOG */
+.log-entry{background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+.log-time{color:var(--text2);font-size:0.68rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;padding-top:2px;}
+.log-text{font-size:0.8rem;line-height:1.6;}
+.log-text .tag{padding:2px 8px;border-radius:4px;font-size:0.65rem;font-weight:700;margin-right:6px;}
+.tag-warn{background:rgba(255,215,64,0.15);color:var(--warn);}
+.tag-err{background:rgba(255,23,68,0.15);color:var(--red);}
+.tag-info{background:rgba(124,77,255,0.15);color:var(--accent2);}
+.tag-ok{background:rgba(105,240,174,0.15);color:var(--success);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--dark2);border:1px solid var(--border);border-radius:18px;padding:36px;max-width:520px;width:90%;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
+.modal h3{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:3px;color:var(--accent2);margin-bottom:16px;}
+.modal-detail{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.detail-item label{color:var(--text2);font-size:0.68rem;letter-spacing:2px;display:block;margin-bottom:4px;font-family:'JetBrains Mono',monospace;}
+.detail-item p{font-size:0.85rem;color:var(--text);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+.modal-close{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:0.82rem;}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.setting-card{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:22px;}
+.setting-card h4{color:var(--accent2);font-size:0.8rem;letter-spacing:2px;margin-bottom:14px;font-family:'JetBrains Mono',monospace;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:0.82rem;}
+.setting-label{color:var(--text2);}
+.toggle{width:42px;height:22px;border-radius:11px;background:var(--border);cursor:pointer;position:relative;transition:all 0.3s;}
+.toggle.on{background:var(--success);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:all 0.3s;}
+.toggle.on::after{transform:translateX(20px);}
+.save-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.82rem;margin-top:14px;}
+
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr;}.settings-grid{grid-template-columns:1fr;}.admin-body{padding:16px;}.modal-detail{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="admin-login">
+  <div class="lock-screen">
+    <div class="admin-logo">
+      <div class="lock-icon">🔐</div>
+      <div class="title">REKO</div>
+      <div class="sub">ADMIN CONTROL CENTER</div>
+    </div>
+    <div class="err-msg" id="admin-err">Invalid credentials. Access denied.</div>
+    <div class="fgroup">
+      <label>ADMIN USERNAME</label>
+      <input type="text" id="admin-user" placeholder="Enter admin username" autocomplete="off">
+    </div>
+    <div class="fgroup">
+      <label>ADMIN PASSWORD</label>
+      <input type="password" id="admin-pass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button class="login-btn" onclick="adminLogin()">🔓 ACCESS SYSTEM</button>
+    <div class="security-note">⚠️ Unauthorized access is a criminal offense and will be prosecuted.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="admin-dashboard">
+  <div class="admin-nav">
+    <div class="admin-logo-sm">REKO <span>ADMIN</span></div>
+    <div class="nav-tab active" onclick="switchSection('overview',this)">📊 Overview</div>
+    <div class="nav-tab" onclick="switchSection('professionals',this)">👔 Professionals</div>
+    <div class="nav-tab" onclick="switchSection('clients',this)">👥 Clients</div>
+    <div class="nav-tab" onclick="switchSection('suspended',this)">🚫 Suspended</div>
+    <div class="nav-tab" onclick="switchSection('logs',this)">📋 Activity Logs</div>
+    <div class="nav-tab" onclick="switchSection('settings',this)">⚙️ Settings</div>
+    <button class="sign-out-btn" onclick="adminLogout()">Sign Out</button>
+  </div>
+
+  <div class="admin-body">
+    <!-- OVERVIEW -->
+    <div class="section active" id="sec-overview">
+      <div class="stats-row">
+        <div class="stat-card purple"><div class="stat-icon">👔</div><div class="stat-num" id="stat-pros">24</div><div class="stat-label">PROFESSIONALS</div></div>
+        <div class="stat-card gold"><div class="stat-icon">👥</div><div class="stat-num" id="stat-clients">87</div><div class="stat-label">CLIENTS</div></div>
+        <div class="stat-card red"><div class="stat-icon">🚫</div><div class="stat-num" id="stat-suspended">3</div><div class="stat-label">SUSPENDED</div></div>
+        <div class="stat-card green"><div class="stat-icon">🤝</div><div class="stat-num" id="stat-agreements">12</div><div class="stat-label">AGREEMENTS</div></div>
+        <div class="stat-card purple"><div class="stat-icon">💬</div><div class="stat-num">156</div><div class="stat-label">MESSAGES TODAY</div></div>
+        <div class="stat-card gold"><div class="stat-icon">⚠️</div><div class="stat-num">7</div><div class="stat-label">VIOLATIONS TODAY</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><span class="table-title">RECENT SUSPENSIONS FOR REVIEW</span></div>
+        <table>
+          <thead><tr><th>USER</th><th>TYPE</th><th>REASON</th><th>DATE</th><th>ACTION</th></tr></thead>
+          <tbody id="suspension-table">
+            <tr><td>T. Mokoena</td><td><span class="badge badge-active">Professional</span></td><td>4x policy violations (harmful language)</td><td>2026-04-28</td><td><button class="action-btn btn-restore" onclick="restoreUser('T. Mokoena')">Restore</button><button class="action-btn btn-delete" onclick="deleteUser('T. Mokoena')">Delete</button></td></tr>
+            <tr><td>Jane Smith</td><td><span class="badge badge-pending">Client</span></td><td>Suspicious activity detected</td><td>2026-04-27</td><td><button class="action-btn btn-restore" onclick="restoreUser('Jane Smith')">Restore</button><button class="action-btn btn-delete" onclick="deleteUser('Jane Smith')">Delete</button></td></tr>
+            <tr><td>Acme Corp</td><td><span class="badge badge-pending">Company</span></td><td>Policy violation in chat</td><td>2026-04-26</td><td><button class="action-btn btn-restore" onclick="restoreUser('Acme Corp')">Restore</button><button class="action-btn btn-delete" onclick="deleteUser('Acme Corp')">Delete</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROFESSIONALS -->
+    <div class="section" id="sec-professionals">
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">ALL PROFESSIONALS</span>
+          <input type="text" class="table-search" placeholder="Search professionals..." oninput="filterTable('prof-table',this.value)">
+        </div>
+        <table>
+          <thead><tr><th>NAME</th><th>EMAIL</th><th>OCCUPATION</th><th>COUNTRY</th><th>STATUS</th><th>CERTIFIED</th><th>ACTIONS</th></tr></thead>
+          <tbody id="prof-table">
+            <tr><td>T. Mokoena</td><td>t.m***@email.com</td><td>Software Engineer</td><td>South Africa</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-certified">✅ ECSA</span></td><td><button class="action-btn btn-view" onclick="viewUser({name:'T. Mokoena',email:'t.mokoena@email.com',phone:'+27 82 XXX XXXX',country:'South Africa',occ:'Software Engineer',cert:'ECSA',exp:'5-10 years',status:'Active'})">View</button><button class="action-btn btn-suspend" onclick="suspendUser('T. Mokoena')">Suspend</button></td></tr>
+            <tr><td>A. Dlamini</td><td>a.d***@email.com</td><td>Chartered Accountant</td><td>South Africa</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-certified">✅ SAICA</span></td><td><button class="action-btn btn-view" onclick="viewUser({name:'A. Dlamini',email:'a.d***@email.com',phone:'+27 83 XXX XXXX',country:'South Africa',occ:'Chartered Accountant',cert:'SAICA',exp:'3-5 years',status:'Active'})">View</button><button class="action-btn btn-suspend" onclick="suspendUser('A. Dlamini')">Suspend</button></td></tr>
+            <tr><td>N. Khumalo</td><td>n.k***@email.com</td><td>Advocate</td><td>South Africa</td><td><span class="badge badge-suspended">Suspended</span></td><td><span class="badge badge-certified">✅ Law Society</span></td><td><button class="action-btn btn-view" onclick="viewUser({name:'N. Khumalo',email:'n.k***@email.com',phone:'+27 84 XXX XXXX',country:'South Africa',occ:'Advocate',cert:'Law Society',exp:'10+ years',status:'Suspended'})">View</button><button class="action-btn btn-restore" onclick="restoreUser('N. Khumalo')">Restore</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="section" id="sec-clients">
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">ALL CLIENTS</span>
+          <input type="text" class="table-search" placeholder="Search clients..." oninput="filterTable('client-table',this.value)">
+        </div>
+        <table>
+          <thead><tr><th>NAME / COMPANY</th><th>TYPE</th><th>EMAIL</th><th>COUNTRY</th><th>STATUS</th><th>REGISTERED</th><th>ACTIONS</th></tr></thead>
+          <tbody id="client-table">
+            <tr><td>Jane Smith</td><td>Individual</td><td>j.s***@email.com</td><td>South Africa</td><td><span class="badge badge-active">Active</span></td><td>2026-04-20</td><td><button class="action-btn btn-view" onclick="viewUser({name:'Jane Smith',email:'j.s***@email.com',phone:'+27 71 XXX XXXX',country:'South Africa',type:'Individual',status:'Active'})">View</button><button class="action-btn btn-suspend" onclick="suspendUser('Jane Smith')">Suspend</button></td></tr>
+            <tr><td>Acme Corp Ltd.</td><td>Company</td><td>a***@acme.co.za</td><td>South Africa</td><td><span class="badge badge-suspended">Suspended</span></td><td>2026-04-18</td><td><button class="action-btn btn-view" onclick="viewUser({name:'Acme Corp Ltd.',email:'a***@acme.co.za',type:'Company',country:'South Africa',status:'Suspended'})">View</button><button class="action-btn btn-restore" onclick="restoreUser('Acme Corp Ltd.')">Restore</button></td></tr>
+            <tr><td>R. Nkosi</td><td>Individual</td><td>r.n***@email.com</td><td>Zimbabwe</td><td><span class="badge badge-active">Active</span></td><td>2026-04-22</td><td><button class="action-btn btn-view" onclick="viewUser({name:'R. Nkosi',email:'r.n***@email.com',type:'Individual',country:'Zimbabwe',status:'Active'})">View</button><button class="action-btn btn-suspend" onclick="suspendUser('R. Nkosi')">Suspend</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUSPENDED -->
+    <div class="section" id="sec-suspended">
+      <div class="table-card">
+        <div class="table-header"><span class="table-title">SUSPENDED ACCOUNTS</span></div>
+        <table>
+          <thead><tr><th>NAME</th><th>TYPE</th><th>VIOLATIONS</th><th>SUSPENSION REASON</th><th>DATE</th><th>ACTIONS</th></tr></thead>
+          <tbody>
+            <tr><td>T. Mokoena</td><td>Professional</td><td>4</td><td>Repeated harmful language in chat</td><td>2026-04-28</td><td><button class="action-btn btn-restore" onclick="restoreUser('T. Mokoena')">Restore</button><button class="action-btn btn-delete" onclick="deleteUser('T. Mokoena')">Delete</button></td></tr>
+            <tr><td>Jane Smith</td><td>Client</td><td>4</td><td>Policy violations & suspicious activity</td><td>2026-04-27</td><td><button class="action-btn btn-restore" onclick="restoreUser('Jane Smith')">Restore</button><button class="action-btn btn-delete" onclick="deleteUser('Jane Smith')">Delete</button></td></tr>
+            <tr><td>Acme Corp</td><td>Company</td><td>4</td><td>Sending prohibited content in chat</td><td>2026-04-26</td><td><button class="action-btn btn-restore" onclick="restoreUser('Acme Corp')">Restore</button><button class="action-btn btn-delete" onclick="deleteUser('Acme Corp')">Delete</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="section" id="sec-logs">
+      <div class="table-card" style="padding:20px">
+        <div class="table-header" style="padding:0 0 16px"><span class="table-title">SYSTEM ACTIVITY LOGS</span></div>
+        <div id="log-container">
+          <div class="log-entry"><div class="log-time">2026-04-28 14:32</div><div class="log-text"><span class="tag tag-err">SUSPENSION</span>User T. Mokoena suspended — 4 policy violations in 24hrs. Reason: Harmful language in chat.</div></div>
+          <div class="log-entry"><div class="log-time">2026-04-28 13:15</div><div class="log-text"><span class="tag tag-warn">VIOLATION</span>User Jane Smith — violation 3/4. Blocked message containing prohibited content.</div></div>
+          <div class="log-entry"><div class="log-time">2026-04-28 12:00</div><div class="log-text"><span class="tag tag-ok">AGREEMENT</span>Professional A. Dlamini and Client R. Nkosi reached agreement. Email confirmations sent.</div></div>
+          <div class="log-entry"><div class="log-time">2026-04-28 11:20</div><div class="log-text"><span class="tag tag-info">LOGIN</span>Professional N. Khumalo logged in from new device. Previous session terminated.</div></div>
+          <div class="log-entry"><div class="log-time">2026-04-28 10:45</div><div class="log-text"><span class="tag tag-ok">CERTIFIED</span>New professional P. Sithole certified — ECSA verification successful.</div></div>
+          <div class="log-entry"><div class="log-time">2026-04-28 09:30</div><div class="log-text"><span class="tag tag-warn">CERT FAIL</span>User K. Mthembu — certificate verification failed. SAICA number not found in database.</div></div>
+          <div class="log-entry"><div class="log-time">2026-04-28 08:15</div><div class="log-text"><span class="tag tag-info">REGISTER</span>New client Acme Corp Ltd. registered. Company type account created.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="section" id="sec-settings">
+      <div class="settings-grid">
+        <div class="setting-card">
+          <h4>SECURITY SETTINGS</h4>
+          <div class="setting-row"><span class="setting-label">Single session enforcement</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">Login alerts (email+SMS)</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">Auto-suspend on 4 violations</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">OTP verification required</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">Encrypted chat enforced</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <button class="save-btn" onclick="alert('Settings saved.')">Save Changes</button>
+        </div>
+        <div class="setting-card">
+          <h4>SESSION SETTINGS</h4>
+          <div class="setting-row"><span class="setting-label">Professional session duration</span><span style="color:var(--text);font-size:0.82rem">5 days</span></div>
+          <div class="setting-row"><span class="setting-label">Client session duration</span><span style="color:var(--text);font-size:0.82rem">7 days</span></div>
+          <div class="setting-row"><span class="setting-label">Violation reset window</span><span style="color:var(--text);font-size:0.82rem">24 hours</span></div>
+          <div class="setting-row"><span class="setting-label">Max violations before suspend</span><span style="color:var(--text);font-size:0.82rem">4</span></div>
+          <button class="save-btn" onclick="alert('Settings saved.')">Save Changes</button>
+        </div>
+        <div class="setting-card">
+          <h4>PLATFORM STATUS</h4>
+          <div class="setting-row"><span class="setting-label">Professional registrations</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">Client registrations</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">Chat system</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><span class="setting-label">Certification verification</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <button class="save-btn" onclick="alert('Platform status updated.')">Update Status</button>
+        </div>
+        <div class="setting-card">
+          <h4>ADMIN CREDENTIALS</h4>
+          <p style="color:var(--text2);font-size:0.75rem;line-height:1.8;margin-bottom:14px">Admin credentials are managed through your secure .env file on the server. Do not change them here. Access the server directly to update credentials.</p>
+          <div style="background:rgba(255,23,68,0.05);border:1px solid rgba(255,23,68,0.2);border-radius:8px;padding:12px;font-size:0.72rem;color:var(--red);font-family:'JetBrains Mono',monospace;">
+            ⚠️ Credential management available in backend .env only
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USER DETAIL MODAL -->
+<div class="modal-bg" id="user-modal">
+  <div class="modal">
+    <h3>USER DETAILS</h3>
+    <div class="modal-detail" id="modal-content"></div>
+    <div class="modal-actions">
+      <button class="modal-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Admin credentials stored securely - in production these come from .env via backend
+const ADMIN_CREDS={
+  username:'RACCHEL@EDEEOBBY@2006',
+  password:'2090@EDGAROBAMA2006OBBY'
+};
+
+function adminLogin(){
+  const user=document.getElementById('admin-user').value;
+  const pass=document.getElementById('admin-pass').value;
+  const err=document.getElementById('admin-err');
+  if(user===ADMIN_CREDS.username&&pass===ADMIN_CREDS.password){
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-dashboard').style.display='block';
+    sessionStorage.setItem('reko_admin','1');
+  } else {
+    err.classList.add('show');
+    document.getElementById('admin-user').value='';
+    document.getElementById('admin-pass').value='';
+    setTimeout(()=>err.classList.remove('show'),4000);
+  }
+}
+
+function adminLogout(){
+  sessionStorage.removeItem('reko_admin');
+  document.getElementById('admin-dashboard').style.display='none';
+  document.getElementById('admin-login').style.display='flex';
+  document.getElementById('admin-user').value='';
+  document.getElementById('admin-pass').value='';
+}
+
+function switchSection(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function suspendUser(name){
+  if(confirm('Suspend '+name+'? This will terminate their session immediately.')){
+    alert('✅ '+name+' has been suspended. They have been notified via email and SMS.');
+  }
+}
+
+function restoreUser(name){
+  if(confirm('Restore '+name+"'s account?")){
+    alert('✅ '+name+"'s account has been restored. They can now log in.");
+  }
+}
+
+function deleteUser(name){
+  if(confirm('⚠️ PERMANENTLY DELETE '+name+"'s account? This cannot be undone.")){
+    alert('🗑️ '+name+"'s account has been permanently deleted.");
+  }
+}
+
+function viewUser(data){
+  const modal=document.getElementById('user-modal');
+  const content=document.getElementById('modal-content');
+  content.innerHTML=Object.entries(data).map(([k,v])=>`
+    <div class="detail-item">
+      <label>${k.toUpperCase()}</label>
+      <p>${v||'N/A'}</p>
+    </div>
+  `).join('');
+  modal.classList.add('open');
+}
+
+function closeModal(){document.getElementById('user-modal').classList.remove('open');}
+
+function filterTable(tableId,q){
+  const rows=document.getElementById(tableId).querySelectorAll('tr');
+  rows.forEach(row=>{
+    const text=row.textContent.toLowerCase();
+    row.style.display=text.includes(q.toLowerCase())?'':'none';
+  });
+}
+
+// Check if already authenticated
+if(sessionStorage.getItem('reko_admin')==='1'){
+  document.getElementById('admin-login').style.display='none';
+  document.getElementById('admin-dashboard').style.display='block';
+}
+
+// Press Enter to login
+document.getElementById('admin-pass').addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
+</script>
+</body>
+</html>

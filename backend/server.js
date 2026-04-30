@@ -880,8 +880,8 @@ io.on('connection', (socket) => {
 // ============================================================
 
 app.use('/uploads', express.static(path.join(__dirname, './uploads')));
-app.get('/user1', (req, res) => res.sendFile(path.resolve(__dirname, '../fronted/user1.html')));
-app.get('/user2', (req, res) => res.sendFile(path.resolve(__dirname, '../fronted/user2.html')));
+app.get('/user1', (req, res) => res.sendFile(path.resolve(__dirname, '../frontend/user1.html')));
+app.get('/user2', (req, res) => res.sendFile(path.resolve(__dirname, '../frontend/user2.html')));
 app.get('/', (req, res) => res.redirect('/user1'));
 
 //placeholder, express.static(path.join(__dirname, './uploads')));
