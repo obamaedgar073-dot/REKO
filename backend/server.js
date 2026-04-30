@@ -878,15 +878,15 @@ io.on('connection', (socket) => {
 // ============================================================
 // STATIC FILES
 // ============================================================
-app.use('/user1', express.static(path.join(__dirname, '../fronted'), { index: 'user1.html' }));
-app.use('/user2', express.static(path.join(__dirname, '../fronted'), { index: 'user2.html' }));
-app.get('/user1', (req,res)=,'../fronted/user1.html')));
-app.get('/user2', (req,res)=,'../fronted/user2.html')));
-app.use('/user2', express.static(path.join(__dirname, '../frontend'), { index: 'user2.html' }));
+
 app.use('/uploads', express.static(path.join(__dirname, './uploads')));
+app.get('/user1', (req, res) => res.sendFile(path.resolve(__dirname, '../fronted/user1.html')));
+app.get('/user2', (req, res) => res.sendFile(path.resolve(__dirname, '../fronted/user2.html')));
+app.get('/', (req, res) => res.redirect('/user1'));
+
+//placeholder, express.static(path.join(__dirname, './uploads')));
 
 // Default
-app.get('/', (req, res) => res.redirect('/user1'));
 
 // ============================================================
 // ERROR HANDLER
